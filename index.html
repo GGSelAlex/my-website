@@ -312,6 +312,23 @@
         margin-top: 30px;
     }
 
+    /* Стилі для індикатора завантаження форми */
+    .form-loading-spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     /* Адаптивність для менших екранів */
     @media (max-width: 768px) {
       body {
@@ -488,8 +505,7 @@
     <section id="contact" class="fade-in">
       <h2>Зв’яжіться з нами</h2>
       <p>Заповніть форму, і ми вам зателефонуємо:</p>
-      <form name="contact" method="POST" data-netlify="true" netlify>
-        <label for="name">Ім'я</label>
+      <form id="contactForm"> <label for="name">Ім'я</label>
         <input type="text" id="name" name="name" required />
 
         <label for="phone">Телефон</label>
@@ -524,47 +540,42 @@
   </footer>
 
   <script>
-    // JavaScript для інтерактивності ЧАПів (розгортання/згортання)
-    document.querySelectorAll('.faq-toggle').forEach(button => {
-      button.addEventListener('click', () => {
-        const faqContent = button.parentNode.nextElementSibling; // Отримуємо елемент з відповіддю
-        button.classList.toggle('active');
-        faqContent.classList.toggle('active');
+    document.getElementById('contactForm').addEventListener('submit', async function(e){ // Изменено: async function
+      e.preventDefault();
+      const name = this.name.value.trim();
+      const phone = this.phone.value.trim();
+      const submitButton = document.getElementById('submitButton');
 
-        // Додаткова логіка для анімації висоти
-        if (faqContent.classList.contains('active')) {
-          faqContent.style.maxHeight = faqContent.scrollHeight + "px"; // Встановлюємо реальну висоту
-        } else {
-          faqContent.style.maxHeight = "0";
-        }
-      });
-    });
+      if(!name || !phone) {
+        alert('Будь ласка, заповніть усі поля.');
+        return;
+      }
 
-    // JavaScript для анімації fade-in при прокручуванні
-    function onScrollReveal() {
-      const elements = document.querySelectorAll('.fade-in');
-      const triggerBottom = window.innerHeight * 0.85;
-      elements.forEach(el => {
-        const boxTop = el.getBoundingClientRect().top;
-        if (boxTop < triggerBottom) {
-          el.classList.add('visible');
-        }
-      });
-    }
-    window.addEventListener('scroll', onScrollReveal);
-    window.addEventListener('load', onScrollReveal); // Запускаємо при завантаженні для елементів, що вже у видимій області
+      // Показати індикатор завантаження та вимкнути кнопку
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Надсилання... <span class="form-loading-spinner"></span>';
 
-    // JavaScript для плавної прокрутки
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
+      // Указываем путь к нашей Netlify Function
+      const backendUrl = '/.netlify/functions/send-telegram-message'; 
 
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-          behavior: 'smooth'
+      try {
+        const response = await fetch(backendUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name: name, phone: phone })
         });
-      });
-    });
-  </script>
-</body>
 
-</html>
+        const data = await response.json();
+
+        if (response.ok && data.success) { // Проверяем и статус ответа, и поле success
+          alert('Дякуємо! Ми зв’яжемось з вами найближчим часом.');
+          document.getElementById('contactForm').reset();
+        } else {
+          // Если ответ не OK (например, 400, 500) или success: false
+          alert(`Сталася помилка: ${data.message || 'Невідома помилка'}`);
+          console.error('Backend Error:', data.message || data);
+        }
+      } catch (error) {
+        alert('Сталася помилка при надсиланні запиту до сервера.
