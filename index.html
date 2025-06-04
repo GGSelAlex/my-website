@@ -312,23 +312,6 @@
         margin-top: 30px;
     }
 
-    /* Стилі для індикатора завантаження форми */
-    .form-loading-spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top: 4px solid white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 10px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
     /* Адаптивність для менших екранів */
     @media (max-width: 768px) {
       body {
@@ -505,7 +488,7 @@
     <section id="contact" class="fade-in">
       <h2>Зв’яжіться з нами</h2>
       <p>Заповніть форму, і ми вам зателефонуємо:</p>
-      <form>
+      <form name="contact" method="POST" data-netlify="true" netlify>
         <label for="name">Ім'я</label>
         <input type="text" id="name" name="name" required />
 
@@ -539,56 +522,6 @@
   <footer>
     <p>© 2025 Допомога чоловікам. Всі права захищені. <a href="#privacy">Політика конфіденційності та Умови використання</a></p>
   </footer>
-
-  <script>
-    document.querySelector('form').addEventListener('submit', function(e){
-      e.preventDefault();
-      const name = this.name.value.trim();
-      const phone = this.phone.value.trim();
-      const submitButton = document.getElementById('submitButton');
-
-      if(!name || !phone) {
-        alert('Будь ласка, заповніть усі поля.');
-        return;
-      }
-
-      // Показати індикатор завантаження та вимкнути кнопку
-      submitButton.disabled = true;
-      submitButton.innerHTML = 'Надсилання... <span class="form-loading-spinner"></span>';
-
-
-      // Изменено: Указан относительный путь к функции Netlify
-      // Важно: Убедитесь, что ваша функция send-telegram-message.js развернута в папке netlify/functions/
-      const backendUrl = '/.netlify/functions/send-telegram-message'; 
-
-      fetch(backendUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: name, phone: phone })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Дякуємо! Ми зв’яжемось з вами найближчим часом.');
-          document.querySelector('form').reset();
-        } else {
-          alert(`Сталася помилка: ${data.message || 'Невідома помилка'}`);
-          console.error('Backend Error:', data.message);
-        }
-      })
-      .catch(error => {
-        alert('Сталася помилка при надсиланні запиту до сервера. Перевірте підключення або спробуйте пізніше.');
-        console.error('Network or Server Error:', error);
-      })
-      .finally(() => {
-        // Завжди повертаємо кнопку в початковий стан
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Надіслати';
-      });
-    });
-  </script>
 
   <script>
     // JavaScript для інтерактивності ЧАПів (розгортання/згортання)
