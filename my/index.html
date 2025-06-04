@@ -7,7 +7,7 @@
   <meta name="description" content="Комплексна юридична допомога чоловікам призовного віку у виїзді за кордон. Оформлення документів, білий квиток, інвалідність, бронювання. Законно та надійно." />
   <meta name="keywords" content="виїзд за кордон, чоловіки призовного віку, білий квиток, оформлення інвалідності, бронювання, юридична допомога, виїзд з України, перетин кордону, юрист з виїзду, відстрочка" />
   <meta name="author" content="Ваша Компанія" />
-
+  
   <meta property="og:title" content="Допомога чоловікам призовного віку у виїзді за кордон" />
   <meta property="og:description" content="Комплексна юридична допомога чоловікам призовного віку у виїзді за кордон. Оформлення документів, білий квиток, інвалідність, бронювання. Законно та надійно." />
   <meta property="og:type" content="website" />
@@ -91,7 +91,7 @@
     }
     button:hover {
       background: #005fa3;
-      box_shadow: 0 6px 14px rgba(0, 122, 204, 0.3);
+      box-shadow: 0 6px 14px rgba(0, 122, 204, 0.3);
     }
     footer {
       text-align: center;
@@ -312,7 +312,7 @@
         margin-top: 30px;
     }
 
-    /* Стилі для індикатора завантаження форми - ЦЕЙ БЛОК ТЕПЕР ВИКОРИСТОВУЄТЬСЯ */
+    /* Стилі для індикатора завантаження форми */
     .form-loading-spinner {
       border: 4px solid rgba(255, 255, 255, 0.3);
       border-top: 4px solid white;
@@ -505,7 +505,7 @@
     <section id="contact" class="fade-in">
       <h2>Зв’яжіться з нами</h2>
       <p>Заповніть форму, і ми вам зателефонуємо:</p>
-      <form name="contact" method="POST" action="/.netlify/functions/send-telegram-message">
+      <form>
         <label for="name">Ім'я</label>
         <input type="text" id="name" name="name" required />
 
@@ -515,21 +515,92 @@
         <button type="submit" id="submitButton">Надіслати</button>
       </form>
     </section>
+
+    <section id="privacy" class="fade-in">
+      <h2>Політика конфіденційності</h2>
+      <p>Ця Політика конфіденційності описує, як ми збираємо, використовуємо та захищаємо інформацію, яку ви надаєте нам через цей веб-сайт.</p>
+      <h3>Збір інформації</h3>
+      <p>Ми збираємо особисту інформацію, таку як ваше ім'я та номер телефону, коли ви добровільно надаєте її через нашу форму зворотного зв'язку.</p>
+      <h3>Використання інформації</h3>
+      <p>Надана інформація використовується виключно для зв'язку з вами щодо ваших запитів та надання відповідних послуг. Ми не передаємо ваші дані третім особам без вашої згоди, за винятком випадків, передбачених законодавством.</p>
+      <h3>Захист інформації</h3>
+      <p>Ми вживаємо розумних заходів для захисту особистої інформації від несанкціонованого доступу, зміни, розкриття або знищення.</p>
+      <h3>Зміни до Політики</h3>
+      <p>Ми можемо час від часу оновлювати цю Політику конфіденційності. Будь-які зміни будуть опубліковані на цій сторінці.</p>
+
+      <h2>Умови використання</h2>
+      <p>Використовуючи цей веб-сайт, ви погоджуєтеся з нашими Умовами використання.</p>
+      <h3>Відмова від відповідальності</h3>
+      <p>Інформація, що надається на цьому веб-сайті, має загальний характер і не є юридичною консультацією. Ми не несемо відповідальності за будь-які дії, вчинені на підставі інформації з цього сайту. Для отримання індивідуальної юридичної консультації, будь ласка, зверніться до наших фахівців.</p>
+      <h3>Інтелектуальна власність</h3>
+      <p>Весь вміст цього веб-сайту, включаючи текст, графіку та логотипи, є нашою власністю та захищений законами про авторське право.</p>
+    </section>
     </main>
   <footer>
-    <p>© 2025 Допомога чоловікам. Всі права захищені. <a href="privacy.html">Політика конфіденційності та Умови використання</a></p>
+    <p>© 2025 Допомога чоловікам. Всі права захищені. <a href="#privacy">Політика конфіденційності та Умови використання</a></p>
   </footer>
+
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = this.name.value.trim();
+      const phone = this.phone.value.trim();
+      const submitButton = document.getElementById('submitButton');
+
+      if(!name || !phone) {
+        alert('Будь ласка, заповніть усі поля.');
+        return;
+      }
+
+      // Показати індикатор завантаження та вимкнути кнопку
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Надсилання... <span class="form-loading-spinner"></span>';
+
+
+      // Изменено: Указан относительный путь к функции Netlify
+      // Важно: Убедитесь, что ваша функция send-telegram-message.js развернута в папке netlify/functions/
+      const backendUrl = '/.netlify/functions/send-telegram-message'; 
+
+      fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: name, phone: phone })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Дякуємо! Ми зв’яжемось з вами найближчим часом.');
+          document.querySelector('form').reset();
+        } else {
+          alert(`Сталася помилка: ${data.message || 'Невідома помилка'}`);
+          console.error('Backend Error:', data.message);
+        }
+      })
+      .catch(error => {
+        alert('Сталася помилка при надсиланні запиту до сервера. Перевірте підключення або спробуйте пізніше.');
+        console.error('Network or Server Error:', error);
+      })
+      .finally(() => {
+        // Завжди повертаємо кнопку в початковий стан
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Надіслати';
+      });
+    });
+  </script>
 
   <script>
     // JavaScript для інтерактивності ЧАПів (розгортання/згортання)
     document.querySelectorAll('.faq-toggle').forEach(button => {
       button.addEventListener('click', () => {
-        const faqContent = button.parentNode.nextElementSibling;
+        const faqContent = button.parentNode.nextElementSibling; // Отримуємо елемент з відповіддю
         button.classList.toggle('active');
         faqContent.classList.toggle('active');
 
+        // Додаткова логіка для анімації висоти
         if (faqContent.classList.contains('active')) {
-          faqContent.style.maxHeight = faqContent.scrollHeight + "px";
+          faqContent.style.maxHeight = faqContent.scrollHeight + "px"; // Встановлюємо реальну висоту
         } else {
           faqContent.style.maxHeight = "0";
         }
@@ -548,63 +619,17 @@
       });
     }
     window.addEventListener('scroll', onScrollReveal);
-    window.addEventListener('load', onScrollReveal);
+    window.addEventListener('load', onScrollReveal); // Запускаємо при завантаженні для елементів, що вже у видимій області
 
     // JavaScript для плавної прокрутки
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
+
         document.querySelector(this.getAttribute('href')).scrollIntoView({
           behavior: 'smooth'
         });
       });
-    });
-
-    // НОВИЙ JAVASCRIPT ДЛЯ ОБРОБКИ ФОРМИ ТА НАДАННЯ ДАНИХ ДО NETLIFY FUNCTION
-    document.querySelector('form').addEventListener('submit', async function(e){
-      e.preventDefault(); // Запобігаємо стандартному надсиланню форми
-
-      const name = this.name.value.trim();
-      const phone = this.phone.value.trim();
-      const submitButton = document.getElementById('submitButton'); // Отримуємо кнопку
-
-      if(!name || !phone) {
-        alert('Будь ласка, заповніть усі поля.');
-        return;
-      }
-
-      // Показати індикатор завантаження та вимкнути кнопку
-      submitButton.disabled = true;
-      submitButton.innerHTML = 'Надсилання... <span class="form-loading-spinner"></span>'; // Переконайтеся, що CSS для spinner є
-
-      const functionUrl = '/.netlify/functions/send-telegram-message'; // URL до вашої Netlify Function
-
-      try {
-        const response = await fetch(functionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name: name, phone: phone })
-        });
-
-        const data = await response.json(); // Отримуємо відповідь від функції
-
-        if (data.success) {
-          alert('Дякуємо! Ми зв’яжемось з вами найближчим часом.');
-          document.querySelector('form').reset(); // Очистити форму
-        } else {
-          alert(`Сталася помилка: ${data.message || 'Невідома помилка'}`);
-          console.error('Function Error:', data.message);
-        }
-      } catch (error) {
-        alert('Сталася помилка при надсиланні запиту. Перевірте підключення або спробуйте пізніше.');
-        console.error('Network or Server Error:', error);
-      } finally {
-        // Завжди повертаємо кнопку в початковий стан
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Надіслати';
-      }
     });
   </script>
 </body>
