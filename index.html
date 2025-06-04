@@ -578,4 +578,58 @@
           console.error('Backend Error:', data.message || data);
         }
       } catch (error) {
-        alert('Сталася помилка при надсиланні запиту до сервера.
+        alert('Сталася помилка при надсиланні запиту до сервера. Перевірте підключення або спробуйте пізніше.');
+        console.error('Network or Server Error:', error);
+      } finally {
+        // Завжди повертаємо кнопку в початковий стан
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Надіслати';
+      }
+    });
+  </script>
+
+  <script>
+    // JavaScript для інтерактивності ЧАПів (розгортання/згортання)
+    document.querySelectorAll('.faq-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const faqContent = button.parentNode.nextElementSibling; // Отримуємо елемент з відповіддю
+        button.classList.toggle('active');
+        faqContent.classList.toggle('active');
+
+        // Додаткова логіка для анімації висоти
+        if (faqContent.classList.contains('active')) {
+          faqContent.style.maxHeight = faqContent.scrollHeight + "px"; // Встановлюємо реальну висоту
+        } else {
+          faqContent.style.maxHeight = "0";
+        }
+      });
+    });
+
+    // JavaScript для анімації fade-in при прокручуванні
+    function onScrollReveal() {
+      const elements = document.querySelectorAll('.fade-in');
+      const triggerBottom = window.innerHeight * 0.85;
+      elements.forEach(el => {
+        const boxTop = el.getBoundingClientRect().top;
+        if (boxTop < triggerBottom) {
+          el.classList.add('visible');
+        }
+      });
+    }
+    window.addEventListener('scroll', onScrollReveal);
+    window.addEventListener('load', onScrollReveal); // Запускаємо при завантаженні для елементів, що вже у видимій області
+
+    // JavaScript для плавної прокрутки
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
